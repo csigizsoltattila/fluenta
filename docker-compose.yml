@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # 1. Java Backend: Mapping Service (AI)
+  mapping-service:
+    build:
+      context: ./mapping-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # A Gemini API kulcsot egy .env fájlból fogja olvasni
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - data-mapper-net
+
+  # 2. Rust Backend: Validation Service
+  validation-service:
+    build:
+      context: ./validation-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - data-mapper-net
+
+  # 3. Angular Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      # A felhasználó a 4200-as porton éri el, ami a konténer 80-as portjára (Nginx) mutat
+      - "4200:80"
+    # A frontendnek meg kell várnia, amíg a backendek elindulnak
+    depends_on:
+      - mapping-service
+      - validation-service
+    networks:
+      - data-mapper-net
+
+networks:
+  data-mapper-net:
+    driver: bridge

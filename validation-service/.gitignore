@@ -1,0 +1,12 @@
+Rust build artifact
+
+/target
+
+Cargo lock file
+
+Cargo.lock
+
+IDE specific
+
+.idea/
+.vscode/
